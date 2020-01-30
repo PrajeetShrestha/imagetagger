@@ -80,7 +80,7 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minimumValue="1" maximumValue="6" translatesAutoresizingMaskIntoConstraints="NO" id="Hzo-3Q-1Nq">
+                                            <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minimumValue="1" maximumValue="4" stepValue="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="Hzo-3Q-1Nq">
                                                 <rect key="frame" x="288" y="0.0" width="94" height="32"/>
                                                 <connections>
                                                     <action selector="sizeStepper:" destination="BYZ-38-t0r" eventType="valueChanged" id="ZhD-AA-FWk"/>
