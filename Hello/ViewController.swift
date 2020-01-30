@@ -11,7 +11,24 @@ import YPImagePicker
 import AVFoundation
 
 class ViewController: UIViewController {
+
+    @IBOutlet weak var lblTransparency: UILabel!
+    @IBOutlet weak var lblPosition: UILabel!
+    @IBOutlet weak var lblSize: UILabel!
+    
+    @IBOutlet weak var imgPreview: UIImageView!
+    @IBOutlet weak var stepTransparency: UIStepper!
+    @IBOutlet weak var stepPosition: UIStepper!
+    @IBOutlet weak var stepSize: UIStepper!
+    
     var picker:YPImagePicker!
+    var defaultPosition:Double = 2.0
+    var defaultTransparency:Double = 7.0
+    var defaultSize:Double = 1.5
+    
+    let overlay = UIImage(named:"tag_image")!
+    let previewImage = UIImage(named: "download")!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         var config = YPImagePickerConfiguration()
@@ -21,16 +38,63 @@ class ViewController: UIViewController {
         config.library.isSquareByDefault = false
         config.screens = [.library]
         picker = YPImagePicker(configuration: config)
-        
+        setupDefaultValues()
+        updatePreviewImage()
     }
+    
+    func updatePreviewImage() {
+        let image = imageByMergingImages(topImage: overlay, bottomImage: previewImage)
+        imgPreview.image = image
+    }
+    
+    func setupDefaultValues() {
+        stepPosition.value = defaultPosition
+        setPositionLabel(value: defaultPosition)
+        
+        stepTransparency.value = defaultTransparency
+        setTransparencyLabel(value: defaultTransparency)
+        
+        stepSize.value = defaultSize
+        setSizeLable(value: defaultSize)
+    }
+    
+    func setTransparencyLabel(value:Double) {
+        self.lblTransparency.text = "Transparency:\(value)"
+    }
+    
+    func setPositionLabel(value:Double) {
+        self.lblPosition.text = "Position:\(value)"
+    }
+    
+    func setSizeLable(value:Double) {
+        self.lblSize.text = "Size: \(value)"
+    }
+    
+    @IBAction func transparencyStepper(_ sender: UIStepper) {
+        defaultTransparency = sender.value
+        setTransparencyLabel(value: sender.value)
+        updatePreviewImage()
+    }
+    
+    @IBAction func positionStepper(_ sender: UIStepper) {
+        defaultPosition = sender.value
+        setPositionLabel(value: sender.value)
+        updatePreviewImage()
+    }
+    
+    @IBAction func sizeStepper(_ sender: UIStepper) {
+        defaultSize = sender.value
+        setSizeLable(value: sender.value)
+        updatePreviewImage()
+    }
+    
     @IBAction func pickPhotos(_ sender: Any) {
         present(picker, animated: true, completion: nil)
         picker.didFinishPicking { [unowned picker] items, cancelled in
             for item in items {
                 switch item {
                 case .photo(let photo):
-                    let overlayImage = UIImage(named: "tag_image")!
-                    let image = UIImage.imageByMergingImages(topImage: overlayImage, bottomImage: photo.image)
+                    let image = self.imageByMergingImages(topImage: self.overlay, bottomImage: photo.image)
                     UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
                 case .video(let video):
                     print(video)
@@ -56,28 +120,23 @@ class ViewController: UIViewController {
         }
     }
     
-    
-}
-
-extension UIImage {
-    
-    static func imageByMergingImages(topImage: UIImage, bottomImage: UIImage, scaleForTop: CGFloat = 1.5) -> UIImage {
+     func imageByMergingImages(topImage: UIImage, bottomImage: UIImage) -> UIImage {
         let size = bottomImage.size
         let container = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         UIGraphicsBeginImageContextWithOptions(size, false, 2.0)
         UIGraphicsGetCurrentContext()!.interpolationQuality = .high
         bottomImage.draw(in: container)
         
-        let topWidth = size.width / scaleForTop
-        let topHeight = size.height / scaleForTop
+        let topWidth = size.width / CGFloat(defaultSize)
+        let topHeight = size.height / CGFloat(defaultSize)
         let topX = (size.width / 2.0) - (topWidth / 2.0)
-        let topY = (size.height / 2.0) - (topHeight / 2.0)
+        let topY = (size.height / 2.0) - (topHeight / CGFloat(defaultPosition) )
 
         let wholeRect = CGRect(x: topX, y: topY, width: topWidth, height: topHeight)
         let rect = AVMakeRect(aspectRatio: CGSize(width: 248, height: 58), insideRect: wholeRect)
-        topImage.draw(in:rect , blendMode: .normal, alpha: 0.7)
+        topImage.draw(in:rect , blendMode: .normal, alpha: CGFloat(defaultTransparency/10.0))
     
         return UIGraphicsGetImageFromCurrentImageContext()!
     }
-    
 }
+
