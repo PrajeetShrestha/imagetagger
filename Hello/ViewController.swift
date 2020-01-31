@@ -11,7 +11,7 @@ import YPImagePicker
 import AVFoundation
 
 class ViewController: UIViewController {
-
+    
     @IBOutlet weak var lblTransparency: UILabel!
     @IBOutlet weak var lblPosition: UILabel!
     @IBOutlet weak var lblSize: UILabel!
@@ -29,6 +29,12 @@ class ViewController: UIViewController {
     let overlay = UIImage(named:"tag_image")!
     let previewImage = UIImage(named: "download")!
     
+    let ud = UserDefaults.standard
+    
+    let sizeKey = "DEF_SIZE"
+    let positionKey = "DEF_POSITION"
+    let transparencyKey = "DEF_TRANSPARENCY"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         var config = YPImagePickerConfiguration()
@@ -39,7 +45,7 @@ class ViewController: UIViewController {
         config.screens = [.library]
         picker = YPImagePicker(configuration: config)
         setupDefaultValues()
-        updatePreviewImage()
+    
     }
     
     func updatePreviewImage() {
@@ -48,14 +54,38 @@ class ViewController: UIViewController {
     }
     
     func setupDefaultValues() {
-        stepPosition.value = defaultPosition
-        setPositionLabel(value: defaultPosition)
         
-        stepTransparency.value = defaultTransparency
-        setTransparencyLabel(value: defaultTransparency)
+        let defPositionValue = ud.double(forKey: positionKey)
+        if defPositionValue != 0 {
+            stepPosition.value = defPositionValue
+            setPositionLabel(value: defPositionValue)
+            defaultPosition = defPositionValue
+        } else {
+            stepPosition.value = defaultPosition
+            setPositionLabel(value: defaultPosition)
+        }
         
-        stepSize.value = defaultSize
-        setSizeLable(value: defaultSize)
+        let defTransparencyValue = ud.double(forKey: transparencyKey)
+        if defTransparencyValue != 0 {
+            defaultTransparency = defTransparencyValue
+            stepTransparency.value = defTransparencyValue
+            setTransparencyLabel(value: defTransparencyValue)
+        } else {
+            stepTransparency.value = defaultTransparency
+            setTransparencyLabel(value: defaultTransparency)
+        }
+        
+        let defSizeValue = ud.double(forKey: sizeKey)
+        if defSizeValue != 0 {
+            defaultSize = defSizeValue
+            stepSize.value = defSizeValue
+            setSizeLable(value: defSizeValue)
+        } else {
+            stepSize.value = defaultSize
+            setSizeLable(value: defaultSize)
+        }
+        
+        updatePreviewImage()
     }
     
     func setTransparencyLabel(value:Double) {
@@ -74,18 +104,21 @@ class ViewController: UIViewController {
         defaultTransparency = sender.value
         setTransparencyLabel(value: sender.value)
         updatePreviewImage()
+        ud.set(sender.value, forKey: transparencyKey)
     }
     
     @IBAction func positionStepper(_ sender: UIStepper) {
         defaultPosition = sender.value
         setPositionLabel(value: sender.value)
         updatePreviewImage()
+        ud.set(sender.value, forKey: positionKey)
     }
     
     @IBAction func sizeStepper(_ sender: UIStepper) {
         defaultSize = sender.value
         setSizeLable(value: sender.value)
         updatePreviewImage()
+        ud.set(sender.value, forKey: sizeKey)
     }
     
     @IBAction func pickPhotos(_ sender: Any) {
